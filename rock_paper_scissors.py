@@ -1,3 +1,13 @@
+"""
+🪨📄✂️ Rock, Paper, Scissors Game
+
+A simple Python project to practice conditionals, loops, and functions.
+The player competes against the computer — first to reach 3 points wins.
+Includes tie handling, input validation, and replay support.
+"""
+
+
+
 import random
 
 print("🪨📄✂️  Welcome to Rock, Paper, Scissors!")
