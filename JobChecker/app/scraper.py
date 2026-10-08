@@ -1,5 +1,5 @@
 """
-Web-fetch and text-extraction module (SRS section 3.1 - accept a job posting
+Web-fetch and text-extraction module (accept a job posting
 URL, fetch and parse its content).
 
 This is the primary input path for the system: given a URL, go get the page,
