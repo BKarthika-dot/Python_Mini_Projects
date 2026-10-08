@@ -1,0 +1,74 @@
+[
+  {
+    "id": "SP001",
+    "label": "scam",
+    "description": "Asks the applicant to pay a registration or processing fee before starting work",
+    "text": "Pay a small registration fee to activate your job offer and receive your starter kit before you begin work."
+  },
+  {
+    "id": "SP002",
+    "label": "scam",
+    "description": "Requests bank account or card details early in the hiring process",
+    "text": "Send us your bank account details so we can process your first salary advance before your official joining date."
+  },
+  {
+    "id": "SP003",
+    "label": "scam",
+    "description": "Uses urgency and scarcity to pressure a quick decision",
+    "text": "Limited seats available, act now! This offer expires in 24 hours, apply immediately to secure your position."
+  },
+  {
+    "id": "SP004",
+    "label": "scam",
+    "description": "Promises unusually high pay for minimal or unspecified work",
+    "text": "Earn $3000 per week working just two hours a day from home, no experience or interview required."
+  },
+  {
+    "id": "SP005",
+    "label": "scam",
+    "description": "Hiring conducted entirely through a personal messaging app with no formal interview",
+    "text": "Contact our recruiter directly on WhatsApp or Telegram to get hired instantly, no resume or interview needed."
+  },
+  {
+    "id": "SP006",
+    "label": "scam",
+    "description": "Uses a free email provider while claiming to represent a large, well-known company",
+    "text": "We are hiring on behalf of a Fortune 500 company, reply to our recruiter at hr.jobs2024@gmail.com to proceed."
+  },
+  {
+    "id": "SP007",
+    "label": "scam",
+    "description": "Asks candidates to purchase equipment or a starter kit from the company before onboarding",
+    "text": "You must purchase your work laptop and starter kit directly from us before we can activate your employee account."
+  },
+  {
+    "id": "LP001",
+    "label": "legit",
+    "description": "Standard corporate job posting describing responsibilities and required qualifications",
+    "text": "We are seeking a qualified candidate with relevant experience to join our team and contribute to ongoing projects."
+  },
+  {
+    "id": "LP002",
+    "label": "legit",
+    "description": "Directs applicants to a formal company careers page or HR portal",
+    "text": "Please apply through our official careers page by submitting your resume and cover letter for review by our HR team."
+  },
+  {
+    "id": "LP003",
+    "label": "legit",
+    "description": "Describes a standard multi-stage interview process",
+    "text": "Shortlisted candidates will be invited to a first-round phone screen followed by an in-person or video interview panel."
+  },
+  {
+    "id": "LP004",
+    "label": "legit",
+    "description": "Mentions standard benefits without requiring any upfront payment",
+    "text": "We offer a competitive salary, health benefits, and professional development opportunities for this full-time role."
+  },
+  {
+    "id": "LP005",
+    "label": "legit",
+    "description": "Specifies a clear, realistic salary range tied to experience level",
+    "text": "The salary range for this position is $60,000 to $75,000 annually, depending on experience and qualifications."
+  }
+]
