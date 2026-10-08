@@ -2,8 +2,7 @@
 ML classifier wrapper.
 
 Uses XGBoost (gradient-boosted decision trees). Gradient boosting can capture non-linear
-interactions between red-flag terms -- e.g. "urgent" co-occurring with
-"fee" mattering more than either term alone -- which a purely linear model
+interactions between red-flag terms that a purely linear model
 tends to miss, making it a better fit as the scam-detection vocabulary
 grows more varied.
 
@@ -12,7 +11,7 @@ vectorizer + XGBoost model directly from data/training_data.csv, and saves
 both under the SAME filenames the rest of the app already expects
 (models/classifier.joblib, models/vectorizer.joblib). knowledge_base.py's
 RAG retrieval loads models/vectorizer.joblib too, so it automatically keeps
-using the same embedding space -- no other module needs to change.
+using the same embedding space.
 """
 from pathlib import Path
 
