@@ -1,7 +1,11 @@
 """
 Rule-based heuristic layer .
 
+<<<<<<< HEAD
 This is the "baseline layer" : fast, explainable checks
+=======
+This is the "baseline layer" - fast, explainable checks
+>>>>>>> 02b1c40a3978e5eae59504b14bbb1ce649aaa234
 that catch obvious red flags before the ML/RAG layers even run.
 """
 import re

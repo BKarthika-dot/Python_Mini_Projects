@@ -1,10 +1,16 @@
 """
+<<<<<<< HEAD
 Retrieval-Augmented layer using genuine semantic similarity.
 
 This version embeds text with a sentence-transformers model , placing text into a
 vector space based on meaning, so retrieval generalizes to paraphrased or
 reworded scam patterns that were never seen verbatim in the knowledge base.
 
+=======
+Retrieval-Augmented layer (RAG Module) using genuine
+semantic similarity.
+
+>>>>>>> 02b1c40a3978e5eae59504b14bbb1ce649aaa234
 """
 import json
 from pathlib import Path

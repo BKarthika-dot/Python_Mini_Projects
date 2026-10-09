@@ -2,8 +2,7 @@
 ML classifier wrapper.
 
 Uses XGBoost (gradient-boosted decision trees). Gradient boosting can capture non-linear
-interactions between red-flag terms -- e.g. "urgent" co-occurring with
-"fee" mattering more than either term alone -- which a purely linear model
+interactions between red-flag terms that a purely linear model
 tends to miss, making it a better fit as the scam-detection vocabulary
 grows more varied.
 
