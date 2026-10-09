@@ -1,149 +1,162 @@
-# Fake Job Posting Checker — Backend
+# JobCheck — Fake Job Posting Checker
 
-A working backend implementation of the pipeline described in the project's
-SRS: submit a job posting (link or pasted text) and get back a
-**Safe / Suspicious / Unsafe** verdict, a confidence score, and a
-human-readable explanation.
+A web application and REST API that checks a job posting (a link or pasted text) and returns a
+**Safe / Suspicious / Unsafe** verdict with a confidence score and a plain-language explanation.
+Users can report wrong verdicts, and administrators confirm them and retrain the model.
 
-## How it works
+## Features
 
-Three signals are computed and fused into one score (see `app/pipeline.py`):
+| Area | What it does |
+|---|---|
+| **Checker** | Accepts a job URL (fetched and cleaned automatically) or pasted text, plus an optional company domain |
+| **Three-signal detection** | Rule-based checks + XGBoost ML classifier + knowledge-base retrieval, fused into one score |
+| **Explanations** | Lists the red flags found and the known scam patterns the posting resembles |
+| **Accounts** | Register / log in with JWT tokens; roles: Job Seeker and Administrator |
+| **History** | Logged-in users can list their previous checks |
+| **Feedback loop** | Users report a wrong verdict, an admin confirms the true label, then retrains the model on confirmed labels |
+| **Admin dashboard** | Review queue, whitelist/blacklist of employer domains, knowledge-base management, analytics |
+| **Persistence** | SQLAlchemy models for users, submissions (with results) and companies; SQLite by default |
 
-| Layer | Module | What it does |
-|---|---|---|
-| Rule-based heuristics | `app/feature_extraction.py` | Flags urgency language, upfront-payment requests, vague descriptions, suspicious contact emails, unrealistic salary claims |
-| ML classifier | `app/classifier.py`, `train_model.py` | TF-IDF + Logistic Regression trained on `data/training_data.csv`, outputs a fraud probability |
-| RAG-style retrieval | `app/knowledge_base.py`, `data/scam_patterns.json` | Finds the most similar known scam/legit patterns via cosine similarity in TF-IDF space, and uses them both to score and to explain the verdict |
+## How the verdict is computed
 
-`final_score = 0.30 * rule_score + 0.40 * ml_score + 0.30 * rag_score`
-→ **Safe** (`< 0.35`), **Suspicious** (`0.35–0.65`), or **Unsafe** (`≥ 0.65`).
+Three scores, each between 0 and 1:
 
-> The ML and RAG training data here are small, synthetic, template-generated
-> examples meant to make the pipeline actually run end-to-end. Swap in a real
-> labeled dataset (e.g. EMSCAD) and a real embedding model/vector store
-> (e.g. sentence-transformers + FAISS/Chroma/Pinecone) for production use —
-> the module interfaces (`predict_proba()`, `retrieve_similar()`) are
-> designed so you can do that without touching the rest of the pipeline.
+- **Rule score** — hand-written checks: urgency language, upfront fee requests, free-email contacts, vague text, unrealistic salary claims.
+- **ML score** — XGBoost's estimated probability that the text is a scam, using TF-IDF features. For long pages, only the opening and the sentences containing red-flag terms are fed to the model, so a short scam section is not diluted.
+- **Retrieval score** — the 3 most similar patterns are retrieved from the knowledge base; the score is the scam-labelled share of their similarity weight.
 
-## Setup
+```
+final = 0.30 × rule + 0.40 × ML + 0.30 × retrieval
+
+final < 0.35        → Safe
+0.35 ≤ final < 0.65 → Suspicious
+final ≥ 0.65        → Unsafe
+```
+
+After scoring, the admin lists apply: a **blacklisted** employer domain forces the score to at least 0.9;
+a **whitelisted** domain multiplies the score by 0.6. The category is then recalculated.
+
+## Quick start
+
+Requires Python 3.10+.
 
 ```bash
 pip install -r requirements.txt
-
-# 1. Generate the synthetic training dataset (or supply your own CSV with
-#    'text' and 'label' columns, label 1 = scam, 0 = legit)
-python data/generate_data.py
-
-# 2. Train the classifier (writes models/classifier.joblib and vectorizer.joblib)
-python train_model.py
+python data/generate_data.py      # creates data/training_data.csv (skip if it already exists)
+python run.py                     # starts the server and opens http://127.0.0.1:8000
 ```
 
-## Usage
+You can also run `uvicorn app.main:app --port 8000` and open the URL yourself.
 
-**The primary input is a URL.** The system fetches the page, extracts the
-job-relevant text (title + main content, with navigation/boilerplate/ads
-stripped out via `trafilatura`, falling back to a BeautifulSoup pass if
-needed), and runs it through the same rule + ML + RAG matching pipeline.
-Pasted text is still supported as an alternate input mode (SRS 3.1), e.g.
-for postings copied from an email or a page that blocks scraping.
+- The first start trains the classifier automatically, so it may take a moment.
+- The SQLite database `fjpc.db` is created on first run. Delete it (with the server stopped) to reset all data.
+- If you see scikit-learn / XGBoost version warnings, delete `models/classifier.joblib` and
+  `models/vectorizer.joblib` and restart. They are regenerated using your installed versions.
 
-### Option A — Command line (fastest way to test input → output)
+### Default administrator
 
-```bash
-# Primary flow: URL in, verdict out
-python test_cli.py https://example.com/careers/job/123
+`admin@jobcheck.local` / `admin123`, created on first run. **Change it** and set `JOBCHECK_SECRET`
+before using the project anywhere beyond your own machine. New registrations are always Job Seekers.
 
-# Equivalent explicit form
-python test_cli.py --url "https://example.com/careers/job/123"
+### Configuration
 
-# Alternate flow: pasted text
-python test_cli.py --text "Urgent hiring! Pay a $99 registration fee to start earning $2000/week from home."
-```
+| Environment variable | Purpose | Default |
+|---|---|---|
+| `DATABASE_URL` | SQLAlchemy database URL (e.g. `postgresql://user:pass@localhost:5432/jobcheck`, needs `psycopg2-binary`) | `sqlite:///fjpc.db` |
+| `JOBCHECK_SECRET` | Key used to sign JWT tokens | `dev-secret-change-me` |
 
-On a bad/unreachable URL you get a clear error instead of a crash, e.g.:
-`Error: The job posting URL returned 404 Not Found: https://example.com/careers/job/123`
+## Using the web app
 
-### Option B — Run the API
+1. Open **http://127.0.0.1:8000**.
+2. Choose **Job URL** or **Paste text**, fill it in, and click **Check job posting**. Use the *scam example* /
+   *legit example* links for a quick demo.
+3. The result shows the verdict, the three score rings, the fraud-likelihood bar, the reasons it was flagged and the matching patterns.
+4. To report a wrong verdict, log in (nav bar) and click **Report wrong verdict**.
+5. As an administrator, open **/admin**:
+   - **Review queue** — Suspicious posts and reported verdicts; confirm each as Scam or Legit, then click **Retrain model on confirmed labels**.
+   - **Whitelist / Blacklist** — manage employer domains.
+   - **Knowledge base** — add or remove scam / legitimate patterns.
+   - **Analytics** — totals, verdict counts, pending reports, and how often the model agreed with confirmed labels.
 
-```bash
-uvicorn app.main:app --reload --port 8000
-```
+## API
 
-Then either open **http://127.0.0.1:8000/docs** for interactive Swagger UI, or call it directly.
+Interactive docs: **http://127.0.0.1:8000/docs**
 
-**Primary endpoint — just a URL:**
+| Method & path | Access | Purpose |
+|---|---|---|
+| `POST /classify-url` | public (optional token) | Check a job URL: `{"url": "...", "company_domain": null}` |
+| `POST /classify` | public (optional token) | Check a URL or text: `{"input_type": "text", "content": "..."}` |
+| `POST /auth/register`, `POST /auth/login` | public | Returns `{token, role, email}` |
+| `GET /history` | logged in | Your previous checks |
+| `POST /submissions/{id}/report` | logged in | Report a wrong verdict: `{"suggested_label": 1}` (1 = scam, 0 = legit) |
+| `GET /admin/review` | admin | Review queue |
+| `POST /admin/submissions/{id}/resolve` | admin | Confirm the true label: `{"label": 1}` |
+| `GET/POST/DELETE /admin/companies` | admin | Whitelist / blacklist |
+| `POST/DELETE /admin/patterns` | admin | Manage knowledge-base patterns |
+| `GET /admin/analytics` | admin | Dashboard statistics |
+| `POST /admin/retrain` | admin | Append confirmed labels to the training data and retrain |
+| `GET /patterns`, `GET /health` | public | Knowledge-base patterns, health check |
 
-```bash
-curl -X POST http://127.0.0.1:8000/classify-url \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://example.com/careers/job/123"}'
-```
+Send the token as `Authorization: Bearer <token>`.
 
-**General endpoint — URL or pasted text:**
+Example:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/classify \
   -H "Content-Type: application/json" \
-  -d '{
-        "input_type": "text",
-        "content": "Congratulations! You have been selected. Pay a refundable security deposit of $150 to confirm your slot.",
-        "company_domain": null
-      }'
+  -d '{"input_type":"text","content":"Urgent hiring! Pay a $99 registration fee to start."}'
 ```
 
-Sample response:
+## Command-line tools
 
-```json
-{
-  "source_url": null,
-  "category": "Unsafe",
-  "confidence_score": 0.734,
-  "rule_based_score": 0.5,
-  "ml_score": 0.711,
-  "rag_score": 1.0,
-  "explanation": [
-    "Upfront payment / fee request detected: security deposit",
-    "Job description is unusually short or vague",
-    "Excessive use of exclamation marks"
-  ],
-  "matched_patterns": [ ... ],
-  "extracted_text_preview": "..."
-}
+```bash
+python test_cli.py https://example.com/careers/job/123       # check a URL
+python test_cli.py --text "Pay a registration fee..."         # check pasted text
+python module_demo.py --text "Pay a registration fee..."      # show each module's output separately
 ```
+
+`module_demo.py` prints the output of each stage (input handling, rules, retrieval, ML, score fusion), which is useful for reports and demos.
 
 ## Project layout
 
 ```
+run.py                     Starts the server and opens the browser
 app/
-  main.py               FastAPI app (/health, /classify, /classify-url)
-  schemas.py             Pydantic request/response models
-  feature_extraction.py  Rule-based heuristic layer
-  classifier.py          ML classifier wrapper (loads trained model)
-  knowledge_base.py      RAG-style retrieval over known scam/legit patterns
-  pipeline.py             Orchestrates rule + ML + RAG -> final verdict
-  scraper.py              Fetches a URL and extracts clean job-posting text
-                          (trafilatura primary, BeautifulSoup fallback)
+  main.py                  FastAPI app: classification, auth, feedback, admin APIs, serves the UI
+  db.py                    SQLAlchemy models: User, Submission, Company
+  schemas.py               Request/response models
+  pipeline.py              Runs rules + ML + retrieval and fuses the scores
+  feature_extraction.py    Rule-based checks
+  classifier.py            XGBoost classifier (self-trains from data/training_data.csv)
+  knowledge_base.py        Retrieval over known scam / legitimate patterns
+  scraper.py               URL fetch (session, retries) and text extraction
+static/
+  index.html               Checker UI
+  admin.html               Admin dashboard
 data/
-  generate_data.py        Builds the synthetic training dataset
-  training_data.csv        (generated)
-  scam_patterns.json        Knowledge base used for RAG retrieval
-models/                     (generated) classifier.joblib, vectorizer.joblib
-train_model.py               Trains and saves the ML classifier
-test_cli.py                   Command-line entry point for quick testing
+  generate_data.py         Builds the synthetic training dataset
+  training_data.csv        Training data (generated; retraining appends to it)
+  scam_patterns.json       Knowledge base patterns
+models/                    Generated: classifier.joblib, vectorizer.joblib
+train_model.py             Standalone Logistic Regression baseline (see note below)
+test_cli.py, module_demo.py
 requirements.txt
 ```
 
-## Notes
+## Optional: semantic retrieval
 
-- The `url` input mode requires outbound internet access to the target job
-  site from wherever this runs. Fetch failures (404, timeout, blocked,
-  non-HTML response, JS-only page with no extractable text, etc.) raise a
-  clear error message rather than crashing.
-- This maps directly onto the SRS/WBS document produced earlier: sections
-  3.1–3.6 (Input Handling, Feature Extraction, RAG Classification,
-  Classification & Scoring, Reporting & Feedback, Administrative modules) and
-  the "5.1 REST API / 5.2 ML Classifier / 5.3 RAG Pipeline" work packages in
-  the WBS.
-- Not yet implemented (left as next steps per the WBS): PostgreSQL
-  persistence for submissions/users, the admin dashboard UI, authentication,
-  and the report/feedback retraining loop.
+`knowledge_base.py` can use TF-IDF similarity (matches shared words) or a **sentence-transformers** embedding
+model (matches meaning, so reworded scams still match). The semantic version needs
+`pip install sentence-transformers` and downloads a small model (~80 MB) on first run, so it needs internet
+access once. Both versions expose the same interface, so nothing else changes.
+
+## Known limitations
+
+- **Training data is synthetic.** The ML model is trained on template-generated examples, so its near-perfect test accuracy only shows the pipeline works, not real-world accuracy. Replace it with a real dataset (e.g. EMSCAD) and report precision, recall and F1 for a proper evaluation.
+- **Score weights and thresholds are set by hand** (0.30 / 0.40 / 0.30, and 0.35 / 0.65), and the ML score is not a calibrated probability.
+- **Retrieval, not full RAG.** The retrieval layer finds similar patterns and uses them to score and explain, but no language model generates the explanation.
+- **Some sites block scraping.** Large job boards (Indeed, LinkedIn) often return 403 even with the session and retry logic. Paste the text instead.
+- **Retraining is manual and simple.** One click retrains the whole model on the original data plus confirmed labels; there is no scheduling or model versioning.
+- **`train_model.py` overwrites the XGBoost model.** It trains a Logistic Regression baseline and writes to the same `models/` files. Delete those files and restart to return to XGBoost.
+- **Security hardening still to do:** CORS is open (`*`), there is no rate limiting, and the scraper does not block internal addresses (SSRF). Fix these before any public deployment.
+- Results are advisory. Always verify an employer independently before paying or sharing personal details.
