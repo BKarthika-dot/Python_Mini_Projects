@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class ClassifyRequest(BaseModel):
     """Input for a classification request.
 
-    Matches SRS section 3.1 (Input Handling Module): the user submits either
+    (Input Handling Module): the user submits either
     a job posting URL or pasted job posting text/form details.
     """
     input_type: Literal["url", "text"] = Field(
@@ -42,3 +42,4 @@ class ClassifyResponse(BaseModel):
     explanation: List[str]
     matched_patterns: List[MatchedPattern]
     extracted_text_preview: str
+    submission_id: Optional[int] = None

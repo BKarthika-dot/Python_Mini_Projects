@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Hiring Portal | Candidate Registration</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            color: #263238;
+        }
+
+        .demo-banner {
+            background: #7f1d1d;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 24px 7%;
+        }
+
+        .brand {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .tagline {
+            font-size: 13px;
+            margin-top: 7px;
+            color: #cbd5e1;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 35px auto;
+            padding: 0 18px;
+        }
+
+        .job-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .job-header {
+            padding: 28px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        h1 {
+            font-size: 27px;
+            margin: 18px 0 10px;
+            color: #172554;
+        }
+
+        .company {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .salary-card {
+            padding: 20px;
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            margin: 20px 0;
+        }
+
+        .salary {
+            font-size: 29px;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .salary-note {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #475569;
+        }
+
+        .pressure {
+            background: #fff7ed;
+            border: 1px solid #fdba74;
+            padding: 15px;
+            border-radius: 5px;
+            color: #9a3412;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        ul {
+            padding-left: 22px;
+            line-height: 1.9;
+        }
+
+        .fee-card {
+            border: 2px solid #dc2626;
+            background: #fef2f2;
+            padding: 22px;
+            border-radius: 7px;
+            margin: 25px 0;
+        }
+
+        .fee-amount {
+            font-size: 30px;
+            font-weight: bold;
+            color: #b91c1c;
+            margin: 12px 0;
+        }
+
+        .form-section {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 7px;
+        }
+
+        label {
+            display: block;
+            margin: 17px 0 7px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 24px;
+            padding: 15px;
+            background: #b91c1c;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #991b1b;
+        }
+
+        .privacy-note {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-top: 18px;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            padding: 25px 15px;
+        }
+
+        #result {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 5px;
+            color: #166534;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            .content, .job-header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="demo-banner">
+        SECURITY TEST SIMULATION — FICTIONAL JOB LISTING
+    </div>
+
+    <header>
+        <div class="brand">NextPath Careers</div>
+        <div class="tagline">
+            Remote Opportunities & Candidate Services
+        </div>
+    </header>
+
+    <main class="container">
+        <article class="job-card">
+
+            <section class="job-header">
+                <span class="status">FAST-TRACK RECRUITMENT</span>
+
+                <h1>Remote Customer Support Associate</h1>
+
+                <div class="company">
+                    NextPath Careers Group · Remote · Full Time
+                </div>
+            </section>
+
+            <section class="content">
+
+                <p>
+                    Welcome, candidate! Your profile may qualify for our
+                    expedited recruitment program. Complete the registration
+                    process to proceed to the next stage.
+                </p>
+
+                <div class="salary-card">
+                    <div>Advertised Monthly Compensation</div>
+                    <div class="salary">₹55,000 – ₹95,000</div>
+                    <div class="salary-note">
+                        High earnings advertised despite no experience requirement.
+                    </div>
+                </div>
+
+                <div class="pressure">
+                    <strong>Application window closing soon!</strong><br>
+                    The recruitment team claims that unverified applications
+                    will be removed from the shortlist at the end of today.
+                </div>
+
+                <h3>What the listing promises</h3>
+
+                <ul>
+                    <li>Work entirely from home.</li>
+                    <li>No prior employment experience necessary.</li>
+                    <li>Company-provided training materials.</li>
+                    <li>Weekly performance incentives.</li>
+                    <li>Selection allegedly completed within 24 hours.</li>
+                </ul>
+
+                <h3>Recruitment Process</h3>
+
+                <ol>
+                    <li>Submit your candidate profile.</li>
+                    <li>Complete the claimed identity-verification step.</li>
+                    <li>Receive a confirmation of eligibility.</li>
+                </ol>
+
+                <div class="fee-card">
+                    <h3>Candidate File Activation Fee</h3>
+
+                    <p>
+                        The fictional recruiter claims a one-time fee is
+                        required to unlock the next recruitment stage.
+                    </p>
+
+                    <div class="fee-amount">₹1,850</div>
+
+                    <p>
+                        The listing claims the amount will be credited back
+                        after the candidate's first month of employment.
+                    </p>
+
+                    <strong>Notice:</strong> Paying an upfront fee to obtain
+                    a job is a significant warning sign.
+                </div>
+
+                <div class="form-section">
+                    <h3>Candidate Eligibility Form</h3>
+
+                    <p>
+                        Use fictional test values only. This demonstration
+                        does not submit information to a server.
+                    </p>
+
+                    <form id="candidateForm">
+
+                        <label for="candidateName">Candidate Name</label>
+                        <input
+                            id="candidateName"
+                            name="candidateName"
+                            type="text"
+                            placeholder="Enter a fictional name"
+                            required
+                        >
+
+                        <label for="email">Contact Email</label>
+                        <input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="example@test.invalid"
+                            required
+                        >
+
+                        <label for="experience">Previous Work Experience</label>
+                        <select id="experience" name="experience" required>
+                            <option value="">Choose an option</option>
+                            <option>No previous experience</option>
+                            <option>Less than one year</option>
+                            <option>One to three years</option>
+                            <option>More than three years</option>
+                        </select>
+
+                        <label for="idStatus">Identity Document Status</label>
+                        <select id="idStatus" name="idStatus" required>
+                            <option value="">Select status</option>
+                            <option>Available for verification</option>
+                            <option>Not currently available</option>
+                        </select>
+
+                        <label for="paymentChoice">
+                            Registration Fee Acknowledgement
+                        </label>
+                        <select id="paymentChoice" name="paymentChoice" required>
+                            <option value="">Select an option</option>
+                            <option value="flagged">I would verify the employer first</option>
+                            <option value="suspicious">The upfront fee seems suspicious</option>
+                        </select>
+
+                        <button type="submit">
+                            CONTINUE TO CANDIDATE VERIFICATION
+                        </button>
+                    </form>
+
+                    <div id="result" role="status" aria-live="polite"></div>
+
+                    <p class="privacy-note">
+                        Simulation safety: Never enter real government ID
+                        numbers, banking credentials, passwords, OTPs, or
+                        payment details into an unverified recruitment site.
+                        This page does not request or process those details.
+                    </p>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <footer>
+        Fictional training website · Not a real recruitment service
+    </footer>
+
+    <script>
+        document.getElementById("candidateForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const result = document.getElementById("result");
+            result.style.display = "block";
+            result.textContent =
+                "Simulation complete. No information was sent or stored. " +
+                "Detection clues: upfront fee, unusually high advertised pay, " +
+                "time pressure, vague employer details, and a claimed refund " +
+                "after employment. A job-scam detector should evaluate these " +
+                "signals together.";
+        });
+    </script>
+
+</body>
+</html>
+

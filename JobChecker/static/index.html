@@ -34,7 +34,7 @@ footer a{display:block;color:#dbe6ff;text-decoration:none;margin-top:9px}footer 
 @media(max-width:820px){.hero,.promo,.det,footer{grid-template-columns:1fr}.grid,.mw{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr;grid-template-rows:auto}nav .l{display:none}}
 </style></head><body><div class="page">
 <nav><div class="l"><a href="#chk">Checker</a><a href="#how">How it works</a><a href="#pat">Patterns</a></div><div class="logo">JOBCHECK</div>
-<div class="r"><a href="/docs">API docs</a><a href="#res">History</a><span class="badge" id="cnt">0</span></div></nav>
+<div class="r"><a href="/docs">API docs</a><a href="#" id="lg" onclick="$('ld').showModal();return false">Login</a><a href="/admin" id="ad" style="display:none">Admin</a><span class="badge" id="cnt">0</span></div></nav>
 <section class="hero" id="chk"><div class="fp"><h1>Is this job posting real?</h1><p>Paste a link or the job text. Rules, ML and pattern retrieval give you a Safe / Suspicious / Unsafe verdict.</p>
 <div class="tg"><button id="bu" class="on" onclick="mode('url')">Job URL</button><button id="bt" onclick="mode('text')">Paste text</button></div>
 <input id="url" placeholder="https://company.com/careers/job/123"><textarea id="txt" style="display:none" placeholder="Paste the job description here…"></textarea>
@@ -48,7 +48,7 @@ footer a{display:block;color:#dbe6ff;text-decoration:none;margin-top:9px}footer 
 <section id="res" aria-live="polite"><div class="det"><div class="big"><div id="ic"></div><span class="chip" id="src"></span></div>
 <div><h2 id="vt"></h2><p id="vd" style="font-size:13px;margin:0"></p><div class="lbl">Signals</div><div class="rings" id="rings"></div>
 <div class="lbl">Fraud likelihood</div><div class="price" id="pr"></div><div class="bar"><i id="mk"></i></div>
-<p><button class="go" onclick="document.getElementById('chk').scrollIntoView({behavior:'smooth'})">Check another posting</button></p></div></div>
+<p><button class="go" onclick="document.getElementById('chk').scrollIntoView({behavior:'smooth'})">Check another posting</button> <button class="pill" id="rp" onclick="report()">Report wrong verdict</button> <small id="rm"></small></p></div></div>
 <div class="lbl" style="margin-top:22px">Why it was flagged</div><ul class="fl" id="fl"></ul>
 <div class="lbl" style="margin-top:22px;font-size:18px;color:var(--steel)">Matching with</div><div class="mw" id="mw"></div>
 <div class="lbl">Extracted text</div><div class="pv" id="pv"></div></section>
@@ -56,8 +56,10 @@ footer a{display:block;color:#dbe6ff;text-decoration:none;margin-top:9px}footer 
 <div><b>Product</b><a href="#chk">Checker</a><a href="#pat">Patterns</a><a href="#how">How it works</a></div>
 <div><b>Resources</b><a href="/docs">Swagger UI</a><a href="/redoc">ReDoc</a><a href="/health">Health</a></div>
 <div><b>Verdicts</b><a>Safe &lt; 35%</a><a>Suspicious 35–65%</a><a>Unsafe ≥ 65%</a></div></footer></div>
-<script>
-const $=i=>document.getElementById(i),C={Safe:'#1a9c5b',Suspicious:'#d98a0f',Unsafe:'#d93636'};let M='url',n=0,P=[],all=false;
+<dialog id="ld" style="border:0;border-radius:16px;padding:24px;font-family:Poppins,sans-serif;width:320px"><b>Sign in to JobCheck</b><p style="font-size:12px">Log in to link checks to your account and report wrong verdicts.</p>
+<input id="em" placeholder="Email" style="background:#eef4fa"><input id="pw" type="password" placeholder="Password (6+ chars)" style="background:#eef4fa"><div class="err" id="ae" style="display:block;margin:0 0 8px;padding:0"></div>
+<button class="go" onclick="auth('login')">Login</button> <button class="pill" onclick="auth('register')">Register</button> <button class="ex" style="color:#33476b" onclick="$('ld').close()">close</button></dialog><script>
+const $=i=>document.getElementById(i),C={Safe:'#1a9c5b',Suspicious:'#d98a0f',Unsafe:'#d93636'};let SID=null,LBL=0,M='url',n=0,P=[],all=false;
 const ico=(c,k,s=84)=>`<svg width="${s}" height="${s}" viewBox="0 0 64 64" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6l22 8v16c0 14-9 25-22 30C19 55 10 44 10 30V14z" fill="#fff"/><path d="${k}"/></svg>`;
 const K={Safe:'M22 32l8 8 14-16',Suspicious:'M32 22v13M32 43v1',Unsafe:'M24 24l16 16M40 24L24 40'};
 document.body.innerHTML=document.body.innerHTML.replace('__S__',ico(C.Safe,K.Safe,64)).replace('__M__',ico(C.Suspicious,K.Suspicious,64)).replace('__B__',ico(C.Unsafe,K.Unsafe,64));
@@ -69,9 +71,9 @@ function ring(l,v){const c=2*Math.PI*22,d=E('div','rg');d.innerHTML=`<svg width=
 async function check(){const er=$('err');er.style.display='none';const body=M=='url'?{url:$('url').value.trim(),company_domain:$('dom').value.trim()||null}:{input_type:'text',content:$('txt').value.trim(),company_domain:$('dom').value.trim()||null};
 if(!(M=='url'?body.url:body.content)){er.textContent='Please enter '+(M=='url'?'a job posting URL.':'some job posting text.');er.style.display='block';return}
 $('go').disabled=true;$('go').textContent='Checking…';
-try{const r=await fetch(M=='url'?'/classify-url':'/classify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'Request failed ('+r.status+')');show(j)}
+try{const r=await fetch(M=='url'?'/classify-url':'/classify',{method:'POST',headers:H(),body:JSON.stringify(body)});const j=await r.json();if(!r.ok)throw new Error(typeof j.detail=='string'?j.detail:'Request failed ('+r.status+')');show(j)}
 catch(e){er.textContent=e.message;er.style.display='block'}finally{$('go').disabled=false;$('go').textContent='Check job posting'}}
-function show(j){$('cnt').textContent=++n;const c=C[j.category];$('ic').innerHTML=ico(c,K[j.category],150);$('src').textContent=j.source_url?'URL':'TEXT';
+function show(j){SID=j.submission_id;LBL=j.category=='Unsafe'?1:0;$('rm').textContent='';$('cnt').textContent=++n;const c=C[j.category];$('ic').innerHTML=ico(c,K[j.category],150);$('src').textContent=j.source_url?'URL':'TEXT';
 $('vt').textContent=j.category=='Safe'?'Looks safe':j.category=='Suspicious'?'Suspicious — verify first':'Unsafe — likely fake';$('vt').style.color=c;
 $('vd').textContent=j.category=='Safe'?'No strong scam signals were found. Still confirm the employer on its official site.':j.category=='Suspicious'?'Some warning signs were found. Verify the company independently before sharing details or paying anything.':'Strong scam signals were found. Do not pay fees or share bank or ID details.';
 const rg=$('rings');rg.replaceChildren(ring('Rules',j.rule_based_score),ring('ML',j.ml_score),ring('Retrieval',j.rag_score));
@@ -79,5 +81,11 @@ $('pr').textContent=(j.confidence_score*100).toFixed(1)+'%';$('pr').style.color=
 $('fl').replaceChildren(...j.explanation.map(x=>E('li','',x)));$('mw').replaceChildren(...j.matched_patterns.map(p=>pc(p,p.similarity)));$('pv').textContent=j.extracted_text_preview;
 $('res').style.display='block';$('res').scrollIntoView({behavior:'smooth'})}
 function draw(){$('pg').replaceChildren(...(all?P:P.slice(0,6)).map(p=>pc(p)));$('more').textContent=all?'Show fewer':'Show all'}function more(){all=!all;draw()}
+const H=()=>{const t=localStorage.jc_token;return t?{'Content-Type':'application/json',Authorization:'Bearer '+t}:{'Content-Type':'application/json'}};
+async function auth(k){const r=await fetch('/auth/'+k,{method:'POST',headers:H(),body:JSON.stringify({email:$('em').value,password:$('pw').value})});const j=await r.json();if(!r.ok){$('ae').textContent=j.detail;return}
+localStorage.jc_token=j.token;localStorage.jc_role=j.role;localStorage.jc_email=j.email;$('ld').close();nav()}
+function nav(){const t=localStorage.jc_token;$('lg').textContent=t?'Logout ('+localStorage.jc_email.split('@')[0]+')':'Login';$('lg').onclick=t?()=>{localStorage.clear();nav();return false}:()=>{$('ld').showModal();return false};$('ad').style.display=localStorage.jc_role=='admin'?'':'none'}
+async function report(){if(!localStorage.jc_token){$('ld').showModal();return}const r=await fetch('/submissions/'+SID+'/report',{method:'POST',headers:H(),body:JSON.stringify({suggested_label:LBL?0:1})});$('rm').textContent=r.ok?'Thanks — sent to admin review.':'Could not send report.'}
+nav();
 fetch('/patterns').then(r=>r.json()).then(d=>{P=d;draw()}).catch(()=>{$('pg').textContent='Could not load patterns.'});
 </script></body></html>

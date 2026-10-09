@@ -12,7 +12,7 @@ vectorizer + XGBoost model directly from data/training_data.csv, and saves
 both under the SAME filenames the rest of the app already expects
 (models/classifier.joblib, models/vectorizer.joblib). knowledge_base.py's
 RAG retrieval loads models/vectorizer.joblib too, so it automatically keeps
-using the same embedding space -- no other module needs to change.
+using the same embedding space.
 """
 from pathlib import Path
 

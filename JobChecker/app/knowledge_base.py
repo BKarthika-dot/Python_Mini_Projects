@@ -1,26 +1,10 @@
 """
-Retrieval-Augmented layer (SRS section 3.3 - RAG Module) using genuine
-semantic similarity.
+Retrieval-Augmented layer using genuine semantic similarity.
 
-Earlier versions of this module reused the ML classifier's TF-IDF vectorizer
-for retrieval. TF-IDF only matches on *shared vocabulary* -- two scam
-descriptions that mean the same thing but share no words (e.g. "pay a
-registration fee to confirm your slot" vs. "a small deposit is required to
-secure your position") would score near-zero similarity. This version
-embeds text with a sentence-transformers model instead, placing text into a
+This version embeds text with a sentence-transformers model , placing text into a
 vector space based on meaning, so retrieval generalizes to paraphrased or
 reworded scam patterns that were never seen verbatim in the knowledge base.
 
-Requires: pip install sentence-transformers
-First run downloads the embedding model (~80MB) from Hugging Face, so it
-needs outbound internet access once; the model is then cached locally
-(default: ~/.cache/huggingface) and no further downloads are needed after
-that.
-
-NOTE: this module is now fully decoupled from the ML classifier's TF-IDF
-vectorizer (models/vectorizer.joblib) -- it manages its own embedding model
-independently, so classifier.py can change its feature representation
-without affecting RAG retrieval, and vice versa.
 """
 import json
 from pathlib import Path

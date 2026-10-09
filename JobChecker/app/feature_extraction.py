@@ -1,7 +1,7 @@
 """
 Rule-based heuristic layer .
 
-This is the "baseline layer" described in the SRS: fast, explainable checks
+This is the "baseline layer" : fast, explainable checks
 that catch obvious red flags before the ML/RAG layers even run.
 """
 import re

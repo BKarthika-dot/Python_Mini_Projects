@@ -74,4 +74,5 @@ class ClassificationPipeline:
             "explanation": explanation,
             "matched_patterns": rag_matches,
             "extracted_text_preview": text[:400],
+            "full_text": text,
         }
